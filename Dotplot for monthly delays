@@ -1,0 +1,69 @@
+"""
+Monthly Average Delay per Delayed Flight by Carrier (Dot Plot)
+Dataset: Boston Logan International Airport Flight Data (2024)
+"""
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load the dataset
+df = pd.read_excel('Dataset_Final.xlsx')
+
+# Calculate average delay per delayed flight (arr_delay / arr_del15)
+df['avg_delay_per_flight'] = df['arr_delay'] / df['arr_del15']
+
+# Define carrier order
+carrier_order = ['Alaska Airlines Network', 'American Airlines Network', 
+                 'Delta Air Lines Network', 'JetBlue Airways', 
+                 'Spirit Airlines', 'United Air Lines Network']
+
+# Define colors for each carrier
+colors = {
+    'Alaska Airlines Network': '#1E90FF',      # Blue
+    'American Airlines Network': '#FF69B4',    # Pink
+    'Delta Air Lines Network': '#FFA500',      # Orange
+    'JetBlue Airways': '#40E0D0',              # Cyan/Turquoise
+    'Spirit Airlines': '#32CD32',              # Green
+    'United Air Lines Network': '#9370DB'      # Purple
+}
+
+# Create figure
+fig, ax = plt.subplots(figsize=(12, 6))
+
+# Plot scatter points for each carrier
+for carrier in carrier_order:
+    carrier_data = df[df['carrier_name'] == carrier]
+    ax.scatter(carrier_data['month'], 
+               carrier_data['avg_delay_per_flight'],
+               label=carrier, 
+               color=colors[carrier], 
+               s=60, 
+               alpha=0.8,
+               edgecolors='white',
+               linewidth=0.5)
+
+# Labels and title
+ax.set_title('Monthly Average Delay per Delayed Flight by Carrier', 
+             fontsize=14, fontweight='bold')
+ax.set_xlabel('Month', fontsize=12)
+ax.set_ylabel('Avg. Delay per Delayed Flight (Minutes)', fontsize=12)
+
+# Set x-axis ticks for months
+ax.set_xticks(range(1, 13))
+ax.set_xticklabels(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
+ax.set_xlim(0.5, 12.5)
+
+# Add gridlines
+ax.grid(True, linestyle='--', alpha=0.5)
+ax.set_axisbelow(True)
+
+# Legend
+ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.12), 
+          ncol=3, fontsize=9, frameon=True)
+
+plt.tight_layout()
+plt.savefig('monthly_avg_delay_dotplot.png', dpi=150, bbox_inches='tight')
+plt.show()
+
+print("Dot plot saved as 'monthly_avg_delay_dotplot.png'")
