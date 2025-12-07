@@ -1,0 +1,55 @@
+import pandas as pd
+from scipy.stats import t
+import numpy as np # Import numpy for sqrt
+
+# Load the "Dataset Final.xlsx"
+file_name = "/content/Dataset Final.xlsx"
+df_raw = pd.read_excel(file_name)
+print("Data loaded successfully.")
+
+# Assume we want to calculate confidence intervals for 'arr_delay' by 'carrier_name'
+# First, calculate mean, std, and count for 'arr_delay' for each carrier
+analysis_df = df_raw.groupby('carrier_name')['arr_delay'].agg(
+    count='count',
+    mean='mean',
+    std='std'
+).reset_index()
+
+# Calculate Standard Error (SE)
+# The previous ANOVA output shows that each carrier group has 12 observations.
+# So, the degrees of freedom for each group is 12 - 1 = 11.
+analysis_df['se'] = analysis_df['std'] / np.sqrt(analysis_df['count'])
+
+# Degrees of Freedom: df = count - 1
+df_t = 11 # Based on N=12 observations per carrier group
+
+# T-critical value for a 95% confidence interval (alpha=0.05, alpha/2=0.025)
+t_crit = t.ppf(0.975, df_t)
+
+# Calculate Margin of Error (ME)
+analysis_df['t_crit'] = t_crit
+analysis_df['Margin_of_Error'] = analysis_df['t_crit'] * analysis_df['se']
+
+# Calculate the new 95% Confidence Interval bounds
+analysis_df['New_CI_Low'] = analysis_df['mean'] - analysis_df['Margin_of_Error']
+analysis_df['New_CI_High'] = analysis_df['mean'] + analysis_df['Margin_of_Error']
+
+# Select and sort the columns for analysis (lower mean delay = more reliable)
+analysis_df = analysis_df[['carrier_name', 'mean', 'std', 'se', 'New_CI_Low', 'New_CI_High', 'Margin_of_Error']].copy()
+analysis_df = analysis_df.sort_values(by='mean', ascending=True).reset_index(drop=True)
+
+# Format the results for presentation (rounding to 2 decimal places for clarity)
+analysis_df['mean'] = analysis_df['mean'].round(2)
+analysis_df['std'] = analysis_df['std'].round(2)
+analysis_df['se'] = analysis_df['se'].round(2)
+analysis_df['Margin_of_Error'] = analysis_df['Margin_of_Error'].round(2)
+analysis_df['New_CI_Low'] = analysis_df['New_CI_Low'].round(2)
+analysis_df['New_CI_High'] = analysis_df['New_CI_High'].round(2)
+
+# Display the final results
+print("\nConfidence Intervals for Average Arrival Delay by Carrier:")
+display(analysis_df)
+
+# Save the final analysis table to a CSV file
+analysis_df.to_csv("Airline_Reliability_T_Test_CI_Analysis.csv", index=False)
+print("\nAnalysis saved to 'Airline_Reliability_T_Test_CI_Analysis.csv'")
