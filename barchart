@@ -1,0 +1,77 @@
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Load the dataset
+df = pd.read_excel('Dataset_Final.xlsx')
+
+# Delay categories
+delay_types = ['carrier_delay', 'weather_delay', 'nas_delay', 
+               'security_delay', 'late_aircraft_delay']
+
+# Aggregate total delays by carrier for each delay type
+delay_data = df.groupby('carrier_name')[delay_types].sum()
+
+# Order carriers by total carrier_delay (descending) to match the original chart
+carrier_order = ['JetBlue Airways', 'American Airlines Network', 
+                 'Delta Air Lines Network', 'United Air Lines Network',
+                 'Alaska Airlines Network', 'Spirit Airlines']
+
+delay_data = delay_data.reindex(carrier_order)
+
+# Create figure
+fig, ax = plt.subplots(figsize=(14, 7))
+
+# Set up bar positions
+x = np.arange(len(delay_types))
+width = 0.13
+multiplier = 0
+
+# Colors for each carrier
+bar_colors = {
+    'JetBlue Airways': '#4169E1',            # Royal Blue
+    'American Airlines Network': '#DC143C',   # Crimson Red
+    'Delta Air Lines Network': '#FFD700',     # Gold/Yellow
+    'United Air Lines Network': '#90EE90',    # Light Green
+    'Alaska Airlines Network': '#FFA500',     # Orange
+    'Spirit Airlines': '#87CEEB'              # Sky Blue
+}
+
+# Plot bars for each carrier
+for carrier in carrier_order:
+    offset = width * multiplier
+    values = delay_data.loc[carrier].values
+    bars = ax.bar(x + offset, values, width, 
+                  label=carrier, 
+                  color=bar_colors[carrier], 
+                  edgecolor='black', 
+                  linewidth=0.5)
+    multiplier += 1
+
+# Labels and title
+ax.set_title('Chart of carrier_delay, weather_delay, nas_delay, security_delay, ...', 
+             fontsize=14, fontweight='bold')
+ax.set_xlabel('Delay Type', fontsize=12)
+ax.set_ylabel('Delay in minutes', fontsize=12)
+
+# X-axis labels
+ax.set_xticks(x + width * 2.5)
+ax.set_xticklabels(delay_types, rotation=0, fontsize=10)
+
+# Y-axis limit
+ax.set_ylim(0, 400000)
+
+# Legend
+ax.legend(loc='upper right', fontsize=9, title='carrier_name')
+
+# Add gridlines
+ax.yaxis.grid(True, linestyle='-', alpha=0.7)
+ax.set_axisbelow(True)
+
+plt.tight_layout()
+plt.savefig('delay_types_bar_chart.png', dpi=150, bbox_inches='tight')
+plt.show()
+
+print("Bar chart saved as 'delay_types_bar_chart.png'")
