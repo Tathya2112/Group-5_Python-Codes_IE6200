@@ -1,0 +1,35 @@
+"""
+Descriptive Statistics for Flight Delay Analysis
+Boston Logan International Airport (2024)
+"""
+import pandas as pd
+
+df = pd.read_excel('Dataset_Final.xlsx')
+
+# arr_flights statistics
+print("=" * 80)
+print("DESCRIPTIVE STATISTICS: arr_flights (Total Arrival Flights)")
+print("=" * 80)
+
+arr_flights_stats = df.groupby('carrier_name')['arr_flights'].agg([
+    ('N', 'count'), ('Mean', 'mean'), ('StDev', 'std'), ('Minimum', 'min'),
+    ('Q1', lambda x: x.quantile(0.25)), ('Median', 'median'),
+    ('Q3', lambda x: x.quantile(0.75)), ('Maximum', 'max')
+]).round(4)
+arr_flights_stats['SE Mean'] = (arr_flights_stats['StDev'] / arr_flights_stats['N']**0.5).round(4)
+arr_flights_stats = arr_flights_stats[['N', 'Mean', 'SE Mean', 'StDev', 'Minimum', 'Q1', 'Median', 'Q3', 'Maximum']]
+print(arr_flights_stats)
+
+# arr_del15 statistics
+print("\n" + "=" * 80)
+print("DESCRIPTIVE STATISTICS: arr_del15 (Flights Delayed ≥15 Minutes)")
+print("=" * 80)
+
+arr_del15_stats = df.groupby('carrier_name')['arr_del15'].agg([
+    ('N', 'count'), ('Mean', 'mean'), ('StDev', 'std'), ('Minimum', 'min'),
+    ('Q1', lambda x: x.quantile(0.25)), ('Median', 'median'),
+    ('Q3', lambda x: x.quantile(0.75)), ('Maximum', 'max')
+]).round(4)
+arr_del15_stats['SE Mean'] = (arr_del15_stats['StDev'] / arr_del15_stats['N']**0.5).round(4)
+arr_del15_stats = arr_del15_stats[['N', 'Mean', 'SE Mean', 'StDev', 'Minimum', 'Q1', 'Median', 'Q3', 'Maximum']]
+print(arr_del15_stats)
