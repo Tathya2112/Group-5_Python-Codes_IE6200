@@ -1,0 +1,61 @@
+"""
+Boxplot of arr_del15 by Carrier
+Dataset: Boston Logan International Airport Flight Data (2024)
+"""
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load the dataset
+df = pd.read_excel('Dataset_Final.xlsx')
+
+# Define carrier order for display
+carrier_order = ['Alaska Airlines Network', 'American Airlines Network', 
+                 'Delta Air Lines Network', 'JetBlue Airways', 
+                 'Spirit Airlines', 'United Air Lines Network']
+
+# Create figure
+fig, ax = plt.subplots(figsize=(10, 6))
+
+# Prepare data for boxplot
+boxplot_data = [df[df['carrier_name'] == carrier]['arr_del15'].values 
+                for carrier in carrier_order]
+
+# Create boxplot
+bp = ax.boxplot(boxplot_data,
+                patch_artist=True,
+                tick_labels=carrier_order)
+
+# Style the boxplot
+for box in bp['boxes']:
+    box.set_facecolor('#6D8DBF')
+    box.set_edgecolor('#4A6A8A')
+    box.set_linewidth(1.5)
+
+for whisker in bp['whiskers']:
+    whisker.set_color('#4A6A8A')
+    whisker.set_linewidth(1.5)
+
+for cap in bp['caps']:
+    cap.set_color('#4A6A8A')
+    cap.set_linewidth(1.5)
+
+for median in bp['medians']:
+    median.set_color('#2C3E50')
+    median.set_linewidth(2)
+
+# Labels and title
+ax.set_title('Boxplot of arr_del15', fontsize=14, fontweight='bold')
+ax.set_ylabel('arr_del15', fontsize=12)
+ax.set_xticklabels(carrier_order, rotation=45, ha='right', fontsize=10)
+ax.set_ylim(0, 1400)
+
+# Add gridlines
+ax.yaxis.grid(True, linestyle='--', alpha=0.7)
+ax.set_axisbelow(True)
+
+plt.tight_layout()
+plt.savefig('boxplot_arr_del15.png', dpi=150, bbox_inches='tight')
+plt.show()
+
+print("Boxplot saved as 'boxplot_arr_del15.png'")
